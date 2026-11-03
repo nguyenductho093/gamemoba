@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề Kiểm Tra Hóa Học - Thi Online</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- MathJax for rendering LaTeX formulas -->
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; }
+        .question-block { background: white; padding: 1.5rem; border-radius: 0.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .option-label { display: flex; align-items: flex-start; padding: 0.5rem; border-radius: 0.25rem; cursor: pointer; transition: background 0.2s; }
+        .option-label:hover { background-color: #f9fafb; }
+        .option-label input { margin-top: 0.3rem; margin-right: 0.75rem; }
+        .correct-ans { background-color: #d1fae5 !important; border: 1px solid #10b981; }
+        .wrong-ans { background-color: #fee2e2 !important; border: 1px solid #ef4444; }
+        .tf-grid { display: grid; grid-template-columns: 1fr auto auto; gap: 1rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #e5e7eb; }
+        .tf-grid:last-child { border-bottom: none; }
+        input[type="text"] { width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem; }
+    </style>
+</head>
+<body class="text-gray-800 pb-20">
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-blue-700 mb-2">ĐỀ KIỂM TRA HÓA HỌC</h1>
+            <p class="text-gray-600">Thời gian làm bài: Không giới hạn | Chấm điểm tự động</p>
+            <p class="mt-2 text-sm"><strong>Cho biết:</strong> Nguyên tử khối của: H = 1; C = 12; N = 14; O = 16; Na = 23; K = 39.</p>
+            <button type="button" onclick="shuffleQuiz()" class="mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-full shadow-md transition-colors flex items-center justify-center mx-auto gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" /></svg>
+                Đảo Mã Đề
+            </button>
+        </div>
+
+        <form id="quizForm">
+            <!-- PHẦN I -->
+            <h2 class="text-xl font-bold bg-blue-600 text-white p-3 rounded-t-lg shadow-md mt-6">PHẦN I. Câu trắc nghiệm nhiều phương án lựa chọn</h2>
+            <div class="bg-blue-50 p-3 text-sm text-blue-800 rounded-b-lg mb-6 shadow-sm">Thí sinh trả lời từ câu 1 đến câu 18. Mỗi câu hỏi thí sinh chỉ chọn một phương án. (0.25 điểm/câu)</div>
+            <div id="part1-container"></div>
+
+            <!-- PHẦN II -->
+            <h2 class="text-xl font-bold bg-green-600 text-white p-3 rounded-t-lg shadow-md mt-8">PHẦN II. Câu trắc nghiệm đúng sai</h2>
+            <div class="bg-green-50 p-3 text-sm text-green-800 rounded-b-lg mb-6 shadow-sm">Thí sinh trả lời từ câu 1 đến câu 4. Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.<br>Điểm: 1 ý đúng = 0.1đ; 2 ý = 0.25đ; 3 ý = 0.5đ; 4 ý = 1.0đ.</div>
+            <div id="part2-container"></div>
+
+            <!-- PHẦN III -->
+            <h2 class="text-xl font-bold bg-purple-600 text-white p-3 rounded-t-lg shadow-md mt-8">PHẦN III. Câu trắc nghiệm yêu cầu trả lời ngắn</h2>
+            <div class="bg-purple-50 p-3 text-sm text-purple-800 rounded-b-lg mb-6 shadow-sm">Thí sinh trả lời từ câu 1 đến câu 6. Điền đáp án dạng số hoặc chữ số vào ô trống. (0.25 điểm/câu)</div>
+            <div id="part3-container"></div>
+
+            <!-- NÚT NỘP BÀI -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-center items-center z-50">
+                <button type="button" onclick="submitQuiz()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full shadow-lg transition-transform transform hover:scale-105 text-lg">
+                    Nộp Bài & Xem Điểm
+                </button>
+            </div>
+        </form>
+
+        <!-- KẾT QUẢ -->
+        <div id="result-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div class="bg-white p-8 rounded-xl max-w-md w-full text-center">
+                <h2 class="text-3xl font-bold mb-4">Kết Quả Bài Làm</h2>
+                <div class="text-6xl font-black text-blue-600 mb-2"><span id="final-score">0</span><span class="text-2xl text-gray-500">/10</span></div>
+                <div class="text-left mt-6 space-y-2 text-sm text-gray-700">
+                    <p>Phần I (Trắc nghiệm): <span id="score-p1" class="font-bold"></span></p>
+                    <p>Phần II (Đúng/Sai): <span id="score-p2" class="font-bold"></span></p>
+                    <p>Phần III (Trả lời ngắn): <span id="score-p3" class="font-bold"></span></p>
+                </div>
+                <button onclick="closeModal()" class="mt-8 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg">
+                    Xem Lại Chi Tiết
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const originalQuizData = {
+            part1: [
+                { q: "Dựa vào phổ khối (MS) người ta xác định được peak ứng với phân tử khối của chất hữu cơ X là 60. Chất X có thể là chất nào sau đây?", opts: ["Methyl acetate.", "Dimethylamine.", "Methyl formate.", "Propan-1-amine."], ans: 2 },
+                { q: "Chất ứng với công thức cấu tạo nào sau đây là amine bậc hai?", opts: ["$\\text{CH}_3\\text{CH(NH}_2\\text{)CH}_3$.", "$\\text{(CH}_3\\text{)}_2\\text{NCH}_3$.", "$\\text{CH}_3\\text{CH}_2\\text{CH}_2\\text{NH}_2$.", "$\\text{CH}_3\\text{NHCH}_2\\text{CH}_3$."], ans: 3 },
+                { q: "Nhỏ dung dịch iodine ($\\text{I}_2$ trong dung dịch KI) vào hồ tinh bột, thu được hỗn hợp có màu", opts: ["vàng nhạt.", "trắng hồng.", "xanh tím.", "xanh lam."], ans: 2 },
+                { q: "Amine nào sau đây khi tác dụng với $\\text{HNO}_2$, thu được ethanol?", opts: ["$\\text{(CH}_3\\text{)}_2\\text{NH}$.", "$\\text{CH}_3\\text{NH}_2$.", "$\\text{(CH}_3\\text{)}_2\\text{CHNH}_2$.", "$\\text{CH}_3\\text{CH}_2\\text{NH}_2$."], ans: 3 },
+                { q: "Sodium stearate là thành phần chính của nhiều loại xà phòng. Công thức hoá học của sodium stearate là", opts: ["$\\text{C}_{17}\\text{H}_{33}\\text{COONa}$.", "$\\text{C}_{17}\\text{H}_{35}\\text{COOK}$.", "$\\text{C}_{15}\\text{H}_{31}\\text{COONa}$.", "$\\text{C}_{17}\\text{H}_{35}\\text{COONa}$."], ans: 3 },
+                { q: "Ethyl acetate là một dung môi hữu cơ thông dụng. Ethyl acetate có thể điều chế bằng phản ứng ester hoá giữa", opts: ["acetic acid và methyl alcohol.", "acetic acid và ethyl alcohol.", "formic acid và methyl alcohol.", "formic acid và ethyl alcohol."], ans: 1 },
+                { q: "Chất hữu cơ X có vị ngọt, không mùi, tồn tại ở dạng lỏng màu trắng, tan trong nước và được dùng làm chất tạo ngọt, giữ ẩm và tạo độ bóng trong thực phẩm như kẹo, bánh. X còn có nhiều ứng dụng khác trong y học, mỹ phẩm và công nghiệp nhờ tác dụng nhuận tràng, làm thuốc tẩy và phụ gia. X được điều chế bằng phản ứng hydrogen hoá glucose. X là", opts: ["ethanol.", "sorbitol.", "lactic acid.", "gluconic acid."], ans: 1 },
+                { q: "Chất nào sau đây thuộc loại disaccharide?", opts: ["Glucose.", "Fructose.", "Maltose.", "Cellulose."], ans: 2 },
+                { q: "Thủy phân ester X có công thức phân tử $\\text{C}_4\\text{H}_8\\text{O}_2$ trong dung dịch NaOH đun nóng, thu được sodium acetate và alcohol Z. Công thức của X là", opts: ["$\\text{HCOOC}_3\\text{H}_7$.", "$\\text{CH}_3\\text{COOC}_2\\text{H}_5$.", "$\\text{CH}_3\\text{COOCH}_3$.", "$\\text{C}_2\\text{H}_5\\text{COOCH}_3$."], ans: 1 },
+                { q: "Chất nào sau đây có thể tham gia phản ứng tráng gương?", opts: ["Ethyl acetate.", "Glycerol.", "Tristearin.", "Glucose."], ans: 3 },
+                { q: "Docosahexaenoic acid (DHA) có công thức khung phân tử như hình bên dưới. DHA là một acid béo thuộc nhóm", opts: ["omega-9.", "omega-7.", "omega-3.", "omega-6."], ans: 2, img: "image_4.png" },
+                { q: "Phản ứng hoá học đặc trưng cho ester là", opts: ["phản ứng trùng hợp.", "phản ứng oxi hoá.", "phản ứng thuỷ phân.", "phản ứng cộng."], ans: 2 },
+                { q: "Cho các công thức cấu tạo I, II, III, IV. Cấu tạo nào đúng với $\\alpha$-glucose?", opts: ["(IV).", "(III).", "(II).", "(I)."], ans: 3, img: "image_4.png" },
+                { q: "Chất ứng với công thức hoá học nào sau đây là ester?", opts: ["$\\text{CH}_3\\text{COOCH}_3$.", "$\\text{CH}_3\\text{-O-CH}_2\\text{-CHO}$.", "$\\text{CH}_3\\text{-COONH}_3\\text{-CH}_3$.", "$\\text{CH}_3\\text{COOH}$."], ans: 0 },
+                { q: "Thuốc thử Tollens là hoá chất thường sử dụng để nhận biết nhóm chức nào sau đây?", opts: ["nhóm -CHO (aldehyde).", "nhóm -COOH (carboxyl).", "nhóm -OH (phenol).", "nhóm -OH (alcohol)."], ans: 0 },
+                { q: "Bơ nhân tạo có thành phần chính là ...(1)... được sản xuất từ quá trình ...(2)... các chất béo lỏng. Nội dung phù hợp điền vào chỗ trống (1), (2) là", opts: ["(1)-triglyceride không no; (2)-hydrogen hoá.", "(1)-triglyceride không no; (2)-oxi hoá.", "(1)-triglyceride no; (2)-hydrogen hoá.", "(1)-triglyceride no; (2)-oxi hoá."], ans: 2 },
+                { q: "Glycerol là chất hữu cơ có nhiều ứng dụng như làm dung môi, điều chế thuốc nổ,... Công thức hoá học của glycerol là", opts: ["$\\text{C}_3\\text{H}_5\\text{OH}$.", "$\\text{C}_2\\text{H}_5\\text{OH}$.", "$\\text{C}_2\\text{H}_4\\text{(OH)}_2$.", "$\\text{C}_3\\text{H}_5\\text{(OH)}_3$."], ans: 3 },
+                { q: "Khi sử dụng các chất giặt rửa tổng hợp cùng với nước để loại bỏ vết bẩn là dầu mỡ bám trên bề mặt vật rắn, chất giặt rửa đưa ...(1)... thâm nhập vào vết dầu mỡ, thiết lập liên kết với dầu mỡ và phân cắt mảng dầu mỡ thành các phần nhỏ để ...(2)... nước. Nội dung phù hợp điền vào chỗ trống (1), (2) là", opts: ["(1)-nhóm ưa nước; (2)-phân tán vào.", "(1)-gốc hydrocarbon; (2)-phân tán vào.", "(1)-gốc hydrocarbon; (2)-bay ra khỏi.", "(1)-nhóm ưa nước; (2)-bay ra khỏi."], ans: 1 }
+            ],
+            part2: [
+                {
+                    q: "Fructose có nhiều trong mật ong và là chất tạo nên vị ngọt đậm đà của mật ong. Trong dung dịch nước, fructose tồn tại chủ yếu ở dạng mạch vòng (5 hoặc 6 cạnh) và một lượng nhỏ tồn tại ở dạng mạch hở. Các dạng đó chuyển hoá lẫn nhau và thiết lập các trạng thái cân bằng hoá học.",
+                    subs: [
+                        { t: "a) Fructose thuộc loại monosaccharide.", ans: "D" },
+                        { t: "b) Các cấu tạo của fructose (mạch vòng và mạch hở) có cùng số nhóm hydroxy (-OH).", ans: "D" },
+                        { t: "c) Khi nhóm hydroxy (-OH) ở carbon số 5 kết hợp với nhóm C=O dạng mạch hở sẽ hình thành fructose có vòng 5 cạnh.", ans: "D" },
+                        { t: "d) Khi phản ứng với thuốc thử Tollens, các dạng mạch hở của fructose sẽ chuyển dịch cân bằng theo hướng tạo mạch vòng.", ans: "S" }
+                    ]
+                },
+                {
+                    q: "Diethylamine thường dùng làm chất chống ăn mòn và dùng trong công nghiệp sản xuất cao su, nhựa,... Sơ đồ tổng hợp: <br> $\\text{CH}_2\\text{=CH}_2 \\xrightarrow{\\text{+ HCl/xt, t}^\\circ} \\text{CH}_3\\text{-CH}_2\\text{-Cl} \\xrightarrow{\\text{+ NH}_3, \\text{t}^\\circ} \\text{CH}_3\\text{-CH}_2\\text{-NH}_2 \\xrightarrow{\\text{+ CH}_3\\text{CH}_2\\text{Cl, t}^\\circ} \\text{(CH}_3\\text{-CH}_2\\text{)}_2\\text{NH}$",
+                    subs: [
+                        { t: "a) Các phản ứng (1), (2), (3) đều là các phản ứng oxi hoá - khử.", ans: "S" },
+                        { t: "b) Trong phản ứng (2), để sản phẩm hữu cơ chủ yếu là $\\text{CH}_3\\text{CH}_2\\text{NH}_2$ thì $\\text{CH}_3\\text{CH}_2\\text{Cl}$ phải lấy dư so với $\\text{NH}_3$.", ans: "S" },
+                        { t: "c) Nếu tỉ lệ mol tham gia phản ứng của $\\text{CH}_3\\text{CH}_2\\text{Cl}$ với $\\text{NH}_3$ là $1 : 2$ thì $\\text{NH}_4\\text{Cl}$ là sản phẩm còn lại của phản ứng (2).", ans: "D" },
+                        { t: "d) Các phản ứng (2) và (3) đều có sự thay thế nguyên tử H liên kết với N bằng gốc hydrocarbon.", ans: "D" }
+                    ]
+                },
+                {
+                    q: "Phản ứng tổng hợp ethyl acetate từ ethyl alcohol và acetic acid theo phương trình hoá học sau:<br> $\\text{H}_3\\text{C}-\\text{C}(=\\text{O})-\\text{OH} + \\text{CH}_3\\text{CH}_2\\text{OH} \\rightleftharpoons \\text{H}_3\\text{C}-\\text{C}(=\\text{O})-\\text{O}-\\text{CH}_2\\text{CH}_3 + \\text{H}_2\\text{O}$",
+                    subs: [
+                        { t: "a) Phản ứng tổng hợp ester từ carboxylic acid và alcohol là phản ứng ester hoá.", ans: "D" },
+                        { t: "b) Trong phản ứng trên, nguyên tử oxygen trong phân tử $\\text{H}_2\\text{O}$ có nguồn gốc từ ethyl alcohol.", ans: "S" },
+                        { t: "c) Với cùng tỉ lệ chất phản ứng, hiệu suất phản ứng tổng hợp ethyl acetate từ nguyên liệu là giấm ăn (dung dịch $\\text{CH}_3\\text{COOH}$ 5%) và rượu trắng (cồn 30 - 40$^\circ$) cao hơn so với từ nguyên liệu nguyên chất.", ans: "S" },
+                        { t: "d) Các hợp chất ester đều tổng hợp được từ nguyên liệu ban đầu là carboxylic acid và alcohol.", ans: "S" }
+                    ]
+                },
+                {
+                    q: "Trong dung dịch nước, amine tác dụng với nước theo cân bằng hoá học sau:<br> $\\text{RNH}_2 (aq) + \\text{H}_2\\text{O} (l) \\rightleftharpoons \\text{RNH}_3^+ (aq) + \\text{OH}^- (aq)$<br>Với cùng nồng độ mol/L, dung dịch methylamine làm quỳ tím chuyển sang màu xanh và dung dịch aniline không làm quỳ tím chuyển màu.",
+                    subs: [
+                        { t: "a) Methylamine và aniline đều là các amine bậc một.", ans: "D" },
+                        { t: "b) Do các amine tác dụng được với nước nên các amine có độ tan trong nước lớn.", ans: "S" },
+                        { t: "c) Tính base của amine là do trên nguyên tử nitrogen có cặp electron hoá trị riêng có khả năng nhận $\\text{H}^+$.", ans: "D" },
+                        { t: "d) Dựa vào sự đổi màu của quỳ tím trong điều kiện trên, kết luận rằng lực base của methylamine lớn hơn lực base của aniline.", ans: "D" }
+                    ]
+                }
+            ],
+            part3: [
+                { q: "Cho các chất: glucose, saccharose, ethyl acetate, cellulose, glycerol, fructose, tristearin. Có bao nhiêu chất thuộc loại carbohydrate?", ans: "4" },
+                { q: "Thủy phân hoàn toàn một triglyceride X bằng dung dịch NaOH, thu được glycerol và hỗn hợp hai muối sodium oleate, sodium stearate có tỉ lệ mol tương ứng $1 : 2$. Có bao nhiêu công thức cấu tạo thỏa mãn của X?", ans: "2" },
+                { q: "Chuẩn độ 10 mL dung dịch methylamine ($\\text{CH}_3\\text{NH}_2$) nồng độ a mol/L bằng dung dịch $\\text{H}_2\\text{SO}_4$ $0,10\\text{ M}$ với chất chỉ thị phù hợp, khi phản ứng đạt đến điểm tương đương thấy hết 12,5 mL dung dịch $\\text{H}_2\\text{SO}_4$. Xác định giá trị của a.", ans: ["0,25", "0.25"] },
+                { q: "Cho các chất: glucose, fructose, glycerol, ethanol, acetaldehyde, ethyl formate, ethylene glycol. Có bao nhiêu chất vừa có khả năng hòa tan $\\text{Cu(OH)}_2$ ở nhiệt độ thường tạo dung dịch màu xanh lam, vừa tham gia phản ứng tráng bạc với thuốc thử Tollens?", ans: "2" },
+                { q: "Giả thiết quá trình sản xuất bioethanol từ cellulose gồm hai giai đoạn: (1) Hóa hơi cellulose thành glucose (H=69%); (2) Lên men glucose thành ethanol (H=55%). Từ 1,0 tấn bã mía (chứa 46% cellulose) sản xuất được V $\\text{m}^3$ xăng E5 (chứa 5% ethanol về thể tích, D=0,79kg/L). Giá trị của V bằng bao nhiêu? (Làm tròn kết quả cuối cùng đến hàng phần trăm)", ans: ["2,51", "2.51"] },
+                { q: "Dung dịch glucose 5% (100 mL dung dịch chứa 5 gam glucose) được dùng làm dịch truyền tĩnh mạch. Cho: $\\text{C}_6\\text{H}_{12}\\text{O}_6 (s) + 6\\text{O}_2 (g) \\rightarrow 6\\text{CO}_2 (g) + 6\\text{H}_2\\text{O} (l) \\quad \\Delta_{\\text{r}}\\text{H}^\\circ_{298} = -2803 \\text{ kJ}$. Một người bệnh được truyền 2 ngày, mỗi ngày 1 chai 250 mL dung dịch glucose 5%. Tính năng lượng tối đa (kJ) mà glucose đã truyền có thể cung cấp. (Làm tròn kết quả đến hàng đơn vị).", ans: "389" }
+            ]
+        };
+
+        // Pre-process correct options string to allow shuffling
+        originalQuizData.part1.forEach(q => {
+            q.correctText = q.opts[q.ans];
+        });
+
+        let currentQuizData = JSON.parse(JSON.stringify(originalQuizData));
+        const labels = ['A', 'B', 'C', 'D'];
+
+        // Hàm đảo mảng (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Đảo đề và render lại
+        function shuffleQuiz() {
+            if(!confirm("Đảo đề sẽ xóa các câu trả lời hiện tại của bạn. Bạn có muốn tiếp tục?")) return;
+
+            // Copy lại dữ liệu gốc
+            currentQuizData = JSON.parse(JSON.stringify(originalQuizData));
+
+            // Đảo câu hỏi các phần
+            shuffleArray(currentQuizData.part1);
+            shuffleArray(currentQuizData.part2);
+            shuffleArray(currentQuizData.part3);
+
+            // Đảo đáp án trong Phần 1
+            currentQuizData.part1.forEach(q => {
+                shuffleArray(q.opts);
+                // Cập nhật lại vị trí đáp án đúng sau khi đảo
+                q.ans = q.opts.indexOf(q.correctText);
+            });
+
+            // Đảo các ý (a,b,c,d) trong Phần 2
+            currentQuizData.part2.forEach(q => {
+                shuffleArray(q.subs);
+                // Chỉnh lại nhãn a, b, c, d
+                const prefix = ['a) ', 'b) ', 'c) ', 'd) '];
+                q.subs.forEach((sub, i) => {
+                    sub.t = prefix[i] + sub.t.substring(3);
+                });
+            });
+
+            renderQuiz();
+
+            // Kích hoạt lại MathJax cho phần nội dung mới
+            if (window.MathJax) {
+                MathJax.typesetPromise();
+            }
+            
+            // Hiện thông báo
+            const btn = document.querySelector('button[onclick="shuffleQuiz()"]');
+            const oldText = btn.innerHTML;
+            btn.innerHTML = "✅ Đã đảo đề!";
+            btn.classList.add("bg-green-500");
+            setTimeout(() => {
+                btn.innerHTML = oldText;
+                btn.classList.remove("bg-green-500");
+            }, 2000);
+        }
+
+        function renderQuiz() {
+            // Render Part 1
+            const p1Container = document.getElementById('part1-container');
+            p1Container.innerHTML = '';
+            currentQuizData.part1.forEach((item, index) => {
+                let imgHtml = item.img ? `<img src="${item.img}" class="w-full max-w-lg object-contain rounded border border-gray-200 mt-3 mb-3 mx-auto shadow-sm" alt="Hình ảnh minh họa" onerror="this.style.display='none'">` : '';
+                let html = `<div class="question-block" id="p1-q${index}">
+                    <p class="font-bold mb-3">Câu ${index + 1}: <span class="font-normal">${item.q}</span></p>
+                    ${imgHtml}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">`;
+                item.opts.forEach((opt, oIndex) => {
+                    html += `<label class="option-label" id="lbl-p1-q${index}-o${oIndex}">
+                        <input type="radio" name="p1-q${index}" value="${oIndex}">
+                        <span><strong>${labels[oIndex]}.</strong> ${opt}</span>
+                    </label>`;
+                });
+                html += `</div>
+                    <div id="msg-p1-q${index}" class="hidden mt-3 text-sm font-semibold"></div>
+                </div>`;
+                p1Container.innerHTML += html;
+            });
+
+            // Render Part 2
+            const p2Container = document.getElementById('part2-container');
+            p2Container.innerHTML = '';
+            currentQuizData.part2.forEach((item, index) => {
+                let html = `<div class="question-block" id="p2-q${index}">
+                    <p class="font-bold mb-3">Câu ${index + 1}: <span class="font-normal">${item.q}</span></p>
+                    <div class="bg-gray-50 rounded border p-2">
+                        <div class="tf-grid font-bold text-sm text-center text-gray-500 hidden md:grid">
+                            <div class="text-left">Phát biểu</div><div>Đúng</div><div>Sai</div>
+                        </div>`;
+                item.subs.forEach((sub, sIndex) => {
+                    html += `<div class="tf-grid" id="lbl-p2-q${index}-s${sIndex}">
+                        <div class="text-sm">${sub.t}</div>
+                        <div class="text-center"><input type="radio" name="p2-q${index}-s${sIndex}" value="D" class="w-4 h-4 text-blue-600"> <span class="md:hidden text-xs">Đúng</span></div>
+                        <div class="text-center"><input type="radio" name="p2-q${index}-s${sIndex}" value="S" class="w-4 h-4 text-red-600"> <span class="md:hidden text-xs">Sai</span></div>
+                    </div>`;
+                });
+                html += `</div>
+                    <div id="msg-p2-q${index}" class="hidden mt-3 text-sm font-semibold"></div>
+                </div>`;
+                p2Container.innerHTML += html;
+            });
+
+            // Render Part 3
+            const p3Container = document.getElementById('part3-container');
+            p3Container.innerHTML = '';
+            currentQuizData.part3.forEach((item, index) => {
+                let html = `<div class="question-block" id="p3-q${index}">
+                    <p class="font-bold mb-3">Câu ${index + 1}: <span class="font-normal">${item.q}</span></p>
+                    <div class="mt-2 flex items-center gap-3">
+                        <span class="font-bold">Đáp án:</span>
+                        <input type="text" id="p3-q${index}-input" placeholder="Nhập đáp án của bạn..." class="max-w-xs focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div id="msg-p3-q${index}" class="hidden mt-3 text-sm font-semibold"></div>
+                </div>`;
+                p3Container.innerHTML += html;
+            });
+        }
+
+        // Lần đầu tải trang
+        renderQuiz();
+
+        function submitQuiz() {
+            if(!confirm("Bạn có chắc chắn muốn nộp bài?")) return;
+
+            let totalScore = 0;
+            let p1Score = 0;
+            let p2Score = 0;
+            let p3Score = 0;
+
+            // Mark Part 1 (0.25 points each)
+            currentQuizData.part1.forEach((item, index) => {
+                const selected = document.querySelector(`input[name="p1-q${index}"]:checked`);
+                const msgEl = document.getElementById(`msg-p1-q${index}`);
+                msgEl.classList.remove('hidden');
+                
+                // Highlight correct answer
+                document.getElementById(`lbl-p1-q${index}-o${item.ans}`).classList.add('correct-ans');
+
+                if (selected) {
+                    const userVal = parseInt(selected.value);
+                    if (userVal === item.ans) {
+                        p1Score += 0.25;
+                        msgEl.innerHTML = '✅ Đúng (+0.25đ)';
+                        msgEl.className = 'mt-3 text-sm font-semibold text-green-600 block';
+                    } else {
+                        document.getElementById(`lbl-p1-q${index}-o${userVal}`).classList.add('wrong-ans');
+                        msgEl.innerHTML = '❌ Sai';
+                        msgEl.className = 'mt-3 text-sm font-semibold text-red-600 block';
+                    }
+                } else {
+                    msgEl.innerHTML = '⚠️ Chưa làm';
+                    msgEl.className = 'mt-3 text-sm font-semibold text-yellow-600 block';
+                }
+            });
+
+            // Mark Part 2 (0.1, 0.25, 0.5, 1.0 points)
+            currentQuizData.part2.forEach((item, index) => {
+                let correctCount = 0;
+                item.subs.forEach((sub, sIndex) => {
+                    const selected = document.querySelector(`input[name="p2-q${index}-s${sIndex}"]:checked`);
+                    const rowEl = document.getElementById(`lbl-p2-q${index}-s${sIndex}`);
+                    
+                    if (selected && selected.value === sub.ans) {
+                        correctCount++;
+                        rowEl.classList.add('bg-green-50');
+                    } else if (selected) {
+                        rowEl.classList.add('bg-red-50');
+                    }
+                    // Show correct answer indicator
+                    rowEl.innerHTML += `<div class="col-span-3 text-xs font-bold text-blue-600">Đ.án đúng: ${sub.ans === 'D' ? 'Đúng' : 'Sai'}</div>`;
+                });
+
+                let points = 0;
+                if (correctCount === 1) points = 0.1;
+                if (correctCount === 2) points = 0.25;
+                if (correctCount === 3) points = 0.5;
+                if (correctCount === 4) points = 1.0;
+                
+                p2Score += points;
+                
+                const msgEl = document.getElementById(`msg-p2-q${index}`);
+                msgEl.innerHTML = `✅ Đúng ${correctCount}/4 ý (+${points}đ)`;
+                msgEl.className = 'mt-3 text-sm font-semibold text-blue-600 block';
+            });
+
+            // Mark Part 3 (0.25 points each)
+            currentQuizData.part3.forEach((item, index) => {
+                const inputEl = document.getElementById(`p3-q${index}-input`);
+                const userVal = inputEl.value.trim().replace(/\s+/g, '');
+                const msgEl = document.getElementById(`msg-p3-q${index}`);
+                
+                let isCorrect = false;
+                if (Array.isArray(item.ans)) {
+                    isCorrect = item.ans.includes(userVal);
+                } else {
+                    isCorrect = (userVal === item.ans);
+                }
+
+                if (isCorrect) {
+                    p3Score += 0.25;
+                    inputEl.classList.add('border-green-500', 'bg-green-50');
+                    msgEl.innerHTML = '✅ Đúng (+0.25đ)';
+                    msgEl.className = 'mt-3 text-sm font-semibold text-green-600 block';
+                } else {
+                    inputEl.classList.add('border-red-500', 'bg-red-50');
+                    const correctText = Array.isArray(item.ans) ? item.ans[0] : item.ans;
+                    msgEl.innerHTML = `❌ Sai. Đáp án đúng: ${correctText}`;
+                    msgEl.className = 'mt-3 text-sm font-semibold text-red-600 block';
+                }
+                inputEl.disabled = true;
+            });
+
+            // Summary
+            totalScore = p1Score + p2Score + p3Score;
+            document.getElementById('final-score').innerText = totalScore.toFixed(2);
+            document.getElementById('score-p1').innerText = `${p1Score.toFixed(2)} / 4.5 điểm`;
+            document.getElementById('score-p2').innerText = `${p2Score.toFixed(2)} / 4.0 điểm`;
+            document.getElementById('score-p3').innerText = `${p3Score.toFixed(2)} / 1.5 điểm`;
+            
+            document.getElementById('result-modal').classList.remove('hidden');
+            window.scrollTo(0,0);
+            
+            // Disable all radio buttons
+            document.querySelectorAll('input[type="radio"]').forEach(el => el.disabled = true);
+        }
+
+        function closeModal() {
+            document.getElementById('result-modal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
